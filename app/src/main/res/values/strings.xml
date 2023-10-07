@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Readers App JetPack</string>
+    <string name="enter_email_password">Please enter a valid email and password that contains at least 6 characters.</string>
+</resources>

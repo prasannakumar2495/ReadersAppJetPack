@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1083665897054",
+    "project_id": "jetpackreaderapplication",
+    "storage_bucket": "jetpackreaderapplication.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1083665897054:android:2d2ae9b59742b0cf52c6cf",
+        "android_client_info": {
+          "package_name": "com.pk.readersappjetpack"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfnn5-DucTo18vSjJ1HvXykbGsCBX77pI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
