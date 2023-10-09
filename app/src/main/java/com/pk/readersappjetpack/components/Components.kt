@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -159,9 +160,11 @@ fun PasswordVisibility(passwordVisibility: MutableState<Boolean>) {
 @Composable
 fun ReaderAppBar(
 	modifier: Modifier = Modifier,
+	icon: ImageVector? = null,
 	title: String,
 	showProfile: Boolean = true,
 	navController: NavController,
+	onBackIconPress: () -> Unit = {},
 ) {
 	TopAppBar(
 		modifier = modifier,
@@ -177,7 +180,17 @@ fun ReaderAppBar(
 						modifier = Modifier
 							.clip(RoundedCornerShape(12.dp))
 							.padding(end = 10.dp)
-							.scale(1.1f)
+							.scale(1.1f),
+						tint = MaterialTheme.colorScheme.onSecondary
+					)
+				if (icon != null)
+					Icon(
+						imageVector = icon,
+						contentDescription = "Back Button",
+						modifier = Modifier
+							.clickable { onBackIconPress() }
+							.padding(end = 20.dp),
+						tint = MaterialTheme.colorScheme.onSecondary,
 					)
 				Text(
 					text = title,
@@ -187,16 +200,17 @@ fun ReaderAppBar(
 			}
 		},
 		actions = {
-			IconButton(onClick = {
-				FirebaseAuth.getInstance().signOut().run {
-					navController.navigate(route = ReaderScreens.LoginScreen.name)
+			if (showProfile)
+				IconButton(onClick = {
+					FirebaseAuth.getInstance().signOut().run {
+						navController.navigate(route = ReaderScreens.LoginScreen.name)
+					}
+				}) {
+					Icon(
+						imageVector = Icons.Filled.Logout, contentDescription = "Logout Button",
+						tint = MaterialTheme.colorScheme.onSecondary
+					)
 				}
-			}) {
-				Icon(
-					imageVector = Icons.Filled.Logout, contentDescription = "Logout Button",
-					tint = MaterialTheme.colorScheme.onSecondary
-				)
-			}
 		},
 		colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.secondary)
 	)
