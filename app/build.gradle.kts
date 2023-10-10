@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
 	id("com.android.application")
 	id("org.jetbrains.kotlin.android")
@@ -9,7 +11,7 @@ plugins {
 android {
 	namespace = "com.pk.readersappjetpack"
 	compileSdk = 34
-	
+	android.buildFeatures.buildConfig = true
 	defaultConfig {
 		applicationId = "com.pk.readersappjetpack"
 		minSdk = 24
@@ -90,6 +92,12 @@ dependencies {
 	implementation("androidx.navigation:navigation-compose:2.7.4")
 	//Icons => But doing so will impact your app size and build time.
 	implementation("androidx.compose.material:material-icons-extended:1.5.3")
+	//Retrofit
+	implementation("com.squareup.retrofit2:retrofit:2.9.0")
+	//OkHTTP
+	implementation("com.squareup.okhttp3:okhttp:4.11.0")
+	//Gson
+	implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 }
 // Allow references to generated code
 kapt {
