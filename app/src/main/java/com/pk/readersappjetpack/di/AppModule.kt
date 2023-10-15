@@ -1,6 +1,7 @@
 package com.pk.readersappjetpack.di
 
 import com.pk.readersappjetpack.network.BooksApi
+import com.pk.readersappjetpack.repo.BooksRepository
 import com.pk.readersappjetpack.util.Constants.BASE_URL
 import dagger.Module
 import dagger.Provides
@@ -20,4 +21,8 @@ class AppModule {
 	fun provideBookApi(): BooksApi = Retrofit.Builder()
 		.baseUrl(BASE_URL).addConverterFactory(GsonConverterFactory.create())
 		.build().create(BooksApi::class.java)
+	
+	@Singleton
+	@Provides
+	fun provideBookRepository(api: BooksApi) = BooksRepository(api)
 }

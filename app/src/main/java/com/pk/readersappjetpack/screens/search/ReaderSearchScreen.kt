@@ -24,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -34,19 +35,21 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import com.pk.readersappjetpack.MainActivity.Companion.TAG
 import com.pk.readersappjetpack.components.InputField
 import com.pk.readersappjetpack.components.ReaderAppBar
+import com.pk.readersappjetpack.model.Item
 import com.pk.readersappjetpack.navigation.ReaderScreens
-import io.grpc.android.BuildConfig
-import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReaderSearchScreen(navController: NavHostController) {
+fun ReaderSearchScreen(
+	navController: NavHostController,
+	booksViewModel: BookSearchViewModel = hiltViewModel(),
+) {
 	Scaffold(
 		topBar = {
 			ReaderAppBar(
@@ -64,20 +67,32 @@ fun ReaderSearchScreen(navController: NavHostController) {
 				SearchForm(
 					modifier = Modifier
 						.fillMaxWidth()
-						.padding(16.dp)
-				) {
-					Log.d(TAG, "ReaderSearchScreen: $it")
+						.padding(16.dp),
+					booksViewModel = booksViewModel
+				) { query ->
+					booksViewModel.searchBooks(query)
 				}
-				LazyColumn(contentPadding = PaddingValues(8.dp)) {
-					items(10) {
-						BooksSingleItem(
-							imageUrl = "", bookTitle = "Android JetPack Development",
-							authorName = "PK",
-							date = LocalDate.now().toString(), subject = "Computer Science",
-							navController = navController
-						)
-					}
-				}
+				BooksColumn(navController, booksViewModel = booksViewModel)
+			}
+		}
+	}
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+private fun BooksColumn(
+	navController: NavHostController,
+	booksViewModel: BookSearchViewModel,
+) {
+	val bookData = booksViewModel.listOfBooks.collectAsState()
+	
+	Log.d("TestAPI", "BooksColumn: ${bookData.value.data}")
+	LazyColumn(contentPadding = PaddingValues(8.dp)) {
+		bookData.value.data?.let { data ->
+			items(data.size) {
+				BooksSingleItem(
+					navController = navController, bookItem = data[it]
+				)
 			}
 		}
 	}
@@ -89,6 +104,7 @@ fun SearchForm(
 	modifier: Modifier = Modifier,
 	loading: Boolean = false,
 	hint: String = "Search",
+	booksViewModel: BookSearchViewModel,
 	onSearch: (String) -> Unit = {},
 ) {
 	val searchState = rememberSaveable {
@@ -112,9 +128,9 @@ fun SearchForm(
 
 @Composable
 fun BooksSingleItem(
-	modifier: Modifier = Modifier, imageUrl: String? = "",
-	bookTitle: String = "", authorName: String = "",
-	date: String = "", subject: String = "", navController: NavHostController,
+	modifier: Modifier = Modifier,
+	navController: NavHostController,
+	bookItem: Item,
 ) {
 	Card(
 		modifier = modifier
@@ -128,8 +144,7 @@ fun BooksSingleItem(
 		Row(verticalAlignment = Alignment.CenterVertically) {
 			Image(
 				painter = rememberAsyncImagePainter(
-					model =
-					"http://books.google.com/books/content?id=aYpoDwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+					model = bookItem.volumeInfo.imageLinks.smallThumbnail
 				),
 				contentDescription = "Book Image",
 				modifier = Modifier
@@ -139,24 +154,24 @@ fun BooksSingleItem(
 			)
 			Column {
 				Text(
-					text = BuildConfig.BUILD_TYPE,
+					text = bookItem.volumeInfo.title,
 					style = MaterialTheme.typography.titleLarge,
 					fontWeight = FontWeight.Bold,
 					overflow = TextOverflow.Ellipsis
 				)
 				Text(
-					text = "Author: $authorName",
+					text = "Author: ${bookItem.volumeInfo.authors}",
 					style = MaterialTheme.typography.bodyMedium,
 					fontWeight = FontWeight.Bold,
 					overflow = TextOverflow.Clip
 				)
 				Text(
-					text = "Date: $date",
+					text = "Date: ${bookItem.volumeInfo.publishedDate}",
 					style = MaterialTheme.typography.bodyMedium,
 					fontWeight = FontWeight.Bold
 				)
 				Text(
-					text = "[$subject]",
+					text = "[${bookItem.volumeInfo.categories}]",
 					style = MaterialTheme.typography.bodyMedium,
 					fontWeight = FontWeight.Bold
 				)
