@@ -3,8 +3,10 @@ package com.pk.readersappjetpack.repo
 import com.pk.readersappjetpack.data.DataOrException
 import com.pk.readersappjetpack.model.Item
 import com.pk.readersappjetpack.network.BooksApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 class BooksRepository @Inject constructor(private val api: BooksApi) {
@@ -20,7 +22,7 @@ class BooksRepository @Inject constructor(private val api: BooksApi) {
 				dataOrException.e = e
 			}
 			emit(dataOrException)
-		}
+		}.flowOn(Dispatchers.IO)
 	
 	suspend fun getBookInfo(bookId: String): Flow<DataOrException<Item, Boolean, Exception>> =
 		flow {
@@ -34,5 +36,5 @@ class BooksRepository @Inject constructor(private val api: BooksApi) {
 				bookInfoDataOrException.e = e
 			}
 			emit(bookInfoDataOrException)
-		}
+		}.flowOn(Dispatchers.IO)
 }

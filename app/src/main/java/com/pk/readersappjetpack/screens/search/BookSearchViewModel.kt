@@ -1,9 +1,7 @@
 package com.pk.readersappjetpack.screens.search
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pk.readersappjetpack.MainActivity.Companion.TAG
 import com.pk.readersappjetpack.data.DataOrException
 import com.pk.readersappjetpack.model.Item
 import com.pk.readersappjetpack.repo.BooksRepository
@@ -11,7 +9,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,9 +24,9 @@ class BookSearchViewModel @Inject constructor(private val repository: BooksRepos
 	fun searchBooks(query: String) = viewModelScope.launch(Dispatchers.IO) {
 		if (query.isEmpty()) return@launch
 		_listOfBooks.value.loading = true
-		repository.getBooks(query).collectLatest {
+		repository.getBooks(query).onEach {
 			_listOfBooks.value = it
-		}
+		}.launchIn(viewModelScope)
 		if (_listOfBooks.value.data.toString().isNotEmpty()) _listOfBooks.value.loading = false
 	}
 }

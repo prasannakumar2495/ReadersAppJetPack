@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -18,12 +19,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +43,7 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.pk.readersappjetpack.components.InputField
 import com.pk.readersappjetpack.components.ReaderAppBar
+import com.pk.readersappjetpack.data.DataOrException
 import com.pk.readersappjetpack.model.Item
 import com.pk.readersappjetpack.navigation.ReaderScreens
 
@@ -63,7 +67,10 @@ fun ReaderSearchScreen(
 		}
 	) { paddingValues ->
 		Surface(modifier = Modifier.padding(paddingValues)) {
-			Column {
+			Column(
+				horizontalAlignment = Alignment.CenterHorizontally,
+				verticalArrangement = Arrangement.Center
+			) {
 				SearchForm(
 					modifier = Modifier
 						.fillMaxWidth()
@@ -71,8 +78,11 @@ fun ReaderSearchScreen(
 					booksViewModel = booksViewModel
 				) { query ->
 					booksViewModel.searchBooks(query)
+					Log.d("QUERY", "ReaderSearchScreen: $query")
 				}
-				BooksColumn(navController, booksViewModel = booksViewModel)
+				val bookData = booksViewModel.listOfBooks.collectAsState()
+				Log.d("Test", "ReaderSearchScreen: ${bookData.value}")
+				BooksColumn(navController, bookData = bookData)
 			}
 		}
 	}
@@ -82,20 +92,20 @@ fun ReaderSearchScreen(
 @Composable
 private fun BooksColumn(
 	navController: NavHostController,
-	booksViewModel: BookSearchViewModel,
+	bookData: State<DataOrException<List<Item>, Boolean, Exception>>,
 ) {
-	val bookData = booksViewModel.listOfBooks.collectAsState()
-	
-	Log.d("TestAPI", "BooksColumn: ${bookData.value.data}")
-	LazyColumn(contentPadding = PaddingValues(8.dp)) {
-		bookData.value.data?.let { data ->
-			items(data.size) {
-				BooksSingleItem(
-					navController = navController, bookItem = data[it]
-				)
+	if (bookData.value.loading == true) {
+		CircularProgressIndicator()
+	} else
+		LazyColumn(contentPadding = PaddingValues(8.dp)) {
+			bookData.value.data?.let { data ->
+				items(data.size) {
+					BooksSingleItem(
+						navController = navController, bookItem = data[it]
+					)
+				}
 			}
 		}
-	}
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
