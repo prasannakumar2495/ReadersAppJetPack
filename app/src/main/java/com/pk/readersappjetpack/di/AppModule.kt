@@ -1,8 +1,11 @@
 package com.pk.readersappjetpack.di
 
+import com.google.firebase.firestore.FirebaseFirestore
 import com.pk.readersappjetpack.network.BooksApi
 import com.pk.readersappjetpack.repo.BooksRepository
+import com.pk.readersappjetpack.repo.FireRepository
 import com.pk.readersappjetpack.util.Constants.BASE_URL
+import com.pk.readersappjetpack.util.Constants.SAVED_BOOKS_COLLECTION
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,4 +28,11 @@ class AppModule {
 	@Singleton
 	@Provides
 	fun provideBookRepository(api: BooksApi) = BooksRepository(api)
+	
+	@Singleton
+	@Provides
+	fun provideFireBookRepository() = FireRepository(
+		query = FirebaseFirestore.getInstance()
+			.collection(SAVED_BOOKS_COLLECTION)
+	)
 }

@@ -330,7 +330,7 @@ fun ListCard(
 				)
 			}
 			mBook.author?.let { Text(text = it, modifier = Modifier.padding(4.dp)) }
-			RoundedOppositeCorners(
+			RoundedOppositeCornersButton(
 				label = "Reading",
 				modifier = Modifier.align(Alignment.End)
 			) {
@@ -341,7 +341,7 @@ fun ListCard(
 }
 
 @Composable
-fun RoundedOppositeCorners(
+fun RoundedOppositeCornersButton(
 	label: String, modifier: Modifier = Modifier,
 	onPressed: () -> Unit = {},
 ) {

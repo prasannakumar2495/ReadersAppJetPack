@@ -147,7 +147,7 @@ fun BooksSingleItem(
 			.padding(4.dp)
 			.fillMaxWidth()
 			.clickable {
-				navController.navigate(route = ReaderScreens.DetailsScreen.name)
+				navController.navigate(route = ReaderScreens.DetailsScreen.name + "/${bookItem.id}")
 			},
 		elevation = CardDefaults.cardElevation(4.dp)
 	) {

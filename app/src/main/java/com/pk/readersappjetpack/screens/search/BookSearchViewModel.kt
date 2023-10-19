@@ -18,7 +18,7 @@ import javax.inject.Inject
 class BookSearchViewModel @Inject constructor(private val repository: BooksRepository) :
 	ViewModel() {
 	private val _listOfBooks: MutableStateFlow<DataOrException<List<Item>, Boolean, Exception>> =
-		MutableStateFlow(DataOrException(null, true, Exception("")))
+		MutableStateFlow(DataOrException(null, false, Exception("")))
 	val listOfBooks: StateFlow<DataOrException<List<Item>, Boolean, Exception>> = _listOfBooks
 	
 	fun searchBooks(query: String) = viewModelScope.launch(Dispatchers.IO) {

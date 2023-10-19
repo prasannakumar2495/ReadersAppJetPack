@@ -3,9 +3,11 @@ package com.pk.readersappjetpack.navigation
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.pk.readersappjetpack.screens.ReadersSplashScreen
 import com.pk.readersappjetpack.screens.createAccount.ReadersCreateAccountScreen
 import com.pk.readersappjetpack.screens.deatils.ReaderBookDetailsScreen
@@ -35,8 +37,16 @@ fun ReaderNavigation() {
 		composable(ReaderScreens.SearchScreen.name) {
 			ReaderSearchScreen(navController = navController)
 		}
-		composable(ReaderScreens.DetailsScreen.name) {
-			ReaderBookDetailsScreen(navController)
+		val detailsScreen = ReaderScreens.DetailsScreen.name
+		composable(
+			route = "$detailsScreen/{bookId}",
+			arguments = listOf(navArgument(name = "bookId") {
+				type = NavType.StringType
+			})
+		) { navBackStackEntry ->
+			navBackStackEntry.arguments?.getString("bookId")?.let {
+				ReaderBookDetailsScreen(navController, it)
+			}
 		}
 		composable(ReaderScreens.UpdateScreen.name) {
 			ReaderUpdatesScreen(navController)
