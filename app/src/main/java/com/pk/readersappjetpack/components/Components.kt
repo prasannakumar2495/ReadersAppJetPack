@@ -282,7 +282,7 @@ fun ListCard(
 			.height(240.dp)
 			.width(200.dp)
 			.clickable {
-				mBook.id?.let { onDetailsClick(it) }
+				mBook.googleBookId?.let { onDetailsClick(it) }
 			}
 	) {
 		Column(
@@ -296,7 +296,7 @@ fun ListCard(
 				modifier = Modifier.fillMaxWidth()
 			) {
 				Image(
-					painter = rememberAsyncImagePainter(model = "http://books.google.com/books/content?id=aYpoDwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"),
+					painter = rememberAsyncImagePainter(model = mBook.photoUrl),
 					contentDescription = "Book Image",
 					modifier = Modifier
 						.height(150.dp)
@@ -324,12 +324,19 @@ fun ListCard(
 				Text(
 					text = it,
 					modifier = Modifier.padding(4.dp),
-					maxLines = 2,
+					maxLines = 1,
 					overflow = TextOverflow.Ellipsis, // This will add "..." at the end.
 					fontWeight = FontWeight.Bold
 				)
 			}
-			mBook.author?.let { Text(text = it, modifier = Modifier.padding(4.dp)) }
+			mBook.author?.let {
+				Text(
+					text = it,
+					modifier = Modifier.padding(4.dp),
+					maxLines = 1,
+					overflow = TextOverflow.Ellipsis
+				)
+			}
 			RoundedOppositeCornersButton(
 				label = "Reading",
 				modifier = Modifier.align(Alignment.End)

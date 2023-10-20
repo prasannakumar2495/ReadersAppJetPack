@@ -1,5 +1,6 @@
 package com.pk.readersappjetpack.screens.home
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material3.Divider
@@ -19,15 +21,18 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
+import com.pk.readersappjetpack.MainActivity.Companion.TAG
 import com.pk.readersappjetpack.R
 import com.pk.readersappjetpack.components.FABContent
 import com.pk.readersappjetpack.components.ListCard
@@ -38,7 +43,10 @@ import com.pk.readersappjetpack.navigation.ReaderScreens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReaderHomeScreen(navController: NavHostController) {
+fun ReaderHomeScreen(
+	navController: NavHostController,
+	viewModel: HomeScreenViewModel = hiltViewModel(),
+) {
 	Scaffold(
 		topBar = {
 			ReaderAppBar(
@@ -56,13 +64,13 @@ fun ReaderHomeScreen(navController: NavHostController) {
 				.padding(it)
 				.fillMaxWidth()
 		) {
-			HomeContent(navController)
+			HomeContent(navController, viewModel = viewModel)
 		}
 	}
 }
 
 @Composable
-fun HomeContent(navController: NavHostController) {
+fun HomeContent(navController: NavHostController, viewModel: HomeScreenViewModel) {
 	Column(
 		modifier = Modifier
 			.fillMaxWidth()
@@ -101,27 +109,32 @@ fun HomeContent(navController: NavHostController) {
 				Divider()
 			}
 		}
-		ReadingRightNowArea(
-			books = listOf(
-				MBook(
-					title = "Dummy Title",
-					author = "Dummy Author",
-					notes = "Dummy Notes",
-					id = "Dummy ID"
-				)
-			), navController = navController
-		)
+		viewModel.getAllBooksFromDB()
+		val currentUser = FirebaseAuth.getInstance().currentUser
+		val booksData =
+			viewModel.data.collectAsState().value.data
+//				?.filter { mBook ->
+//				mBook.id == currentUser?.uid
+//			}
+		Log.d(TAG, "HomeContent: $booksData")
+		if (booksData != null) {
+			ReadingRightNowArea(
+				books = booksData, navController = navController
+			)
+		}
 		TitleSection(label = "Reading List", modifier = Modifier.padding(top = 20.dp))
-		BookListArea(listOfBooks = emptyList(), navController = navController)
+		if (booksData != null) {
+			BookListArea(listOfBooks = booksData, navController = navController)
+		}
 	}
 }
 
 @Composable
 fun ReadingRightNowArea(books: List<MBook>, navController: NavController) {
 	LazyRow {
-		items(count = 10) {
-			ListCard(mBook = books[0], modifier = Modifier.padding(4.dp)) {
-				//TODO => Handle the click.
+		items(books) { bookItem ->
+			ListCard(mBook = bookItem, modifier = Modifier.padding(4.dp)) {
+				navController.navigate(route = ReaderScreens.UpdateScreen.name + "/$it")
 			}
 		}
 	}
@@ -130,6 +143,7 @@ fun ReadingRightNowArea(books: List<MBook>, navController: NavController) {
 @Composable
 fun BookListArea(listOfBooks: List<MBook>, navController: NavHostController) {
 	HorizontalScrollableComponent(listOfBooks) {
+		navController.navigate(route = ReaderScreens.UpdateScreen.name + "/$it")
 	}
 }
 
@@ -140,10 +154,12 @@ fun HorizontalScrollableComponent(listOfBooks: List<MBook>, onCardPressed: (Stri
 			.fillMaxWidth()
 			.height(280.dp)
 	) {
-		items(count = 10) {
-			ListCard(onDetailsClick = {
-				onCardPressed("")
-			}, modifier = Modifier.padding(4.dp))
+		items(listOfBooks) { bookItem ->
+			ListCard(mBook = bookItem,
+				modifier = Modifier.padding(4.dp),
+				onDetailsClick = {
+					onCardPressed(it)
+				})
 		}
 	}
 }

@@ -16,6 +16,7 @@ import com.pk.readersappjetpack.screens.login.ReaderLoginScreen
 import com.pk.readersappjetpack.screens.search.ReaderSearchScreen
 import com.pk.readersappjetpack.screens.stats.ReaderStatsScreen
 import com.pk.readersappjetpack.screens.updates.ReaderUpdatesScreen
+import com.pk.readersappjetpack.util.Constants.BOOK_ID
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -39,17 +40,22 @@ fun ReaderNavigation() {
 		}
 		val detailsScreen = ReaderScreens.DetailsScreen.name
 		composable(
-			route = "$detailsScreen/{bookId}",
-			arguments = listOf(navArgument(name = "bookId") {
+			route = "$detailsScreen/{$BOOK_ID}",
+			arguments = listOf(navArgument(name = BOOK_ID) {
 				type = NavType.StringType
 			})
 		) { navBackStackEntry ->
-			navBackStackEntry.arguments?.getString("bookId")?.let {
+			navBackStackEntry.arguments?.getString(BOOK_ID)?.let {
 				ReaderBookDetailsScreen(navController, it)
 			}
 		}
-		composable(ReaderScreens.UpdateScreen.name) {
-			ReaderUpdatesScreen(navController)
+		composable(
+			route = ReaderScreens.UpdateScreen.name + "/{$BOOK_ID}",
+			arguments = listOf(navArgument(name = BOOK_ID) { type = NavType.StringType })
+		) { navBackStackEntry ->
+			navBackStackEntry.arguments?.getString(BOOK_ID)?.let {
+				ReaderUpdatesScreen(navController, it)
+			}
 		}
 		composable(ReaderScreens.ReaderStatsScreen.name) {
 			ReaderStatsScreen(navController)

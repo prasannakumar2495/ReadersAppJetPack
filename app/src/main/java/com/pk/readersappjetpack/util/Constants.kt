@@ -7,4 +7,9 @@ object Constants {
 	 * Collections
 	 */
 	const val SAVED_BOOKS_COLLECTION = "savedBooks"
+	
+	/**
+	 * Arguments
+	 */
+	const val BOOK_ID = "bookId"
 }
