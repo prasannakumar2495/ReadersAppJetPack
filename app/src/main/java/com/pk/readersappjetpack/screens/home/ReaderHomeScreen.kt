@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -75,7 +76,8 @@ fun HomeContent(navController: NavHostController, viewModel: HomeScreenViewModel
 		modifier = Modifier
 			.fillMaxWidth()
 			.padding(2.dp),
-		verticalArrangement = Arrangement.SpaceEvenly
+		verticalArrangement = Arrangement.SpaceEvenly,
+		horizontalAlignment = Alignment.CenterHorizontally
 	) {
 		Row(
 			modifier = Modifier
@@ -112,20 +114,27 @@ fun HomeContent(navController: NavHostController, viewModel: HomeScreenViewModel
 		viewModel.getAllBooksFromDB()
 		val currentUser = FirebaseAuth.getInstance().currentUser
 		val booksData =
-			viewModel.data.collectAsState().value.data
+			viewModel.data.collectAsState().value
 //				?.filter { mBook ->
 //				mBook.id == currentUser?.uid
 //			}
-		Log.d(TAG, "HomeContent: $booksData")
-		if (booksData != null) {
-			ReadingRightNowArea(
-				books = booksData, navController = navController
-			)
-		}
-		TitleSection(label = "Reading List", modifier = Modifier.padding(top = 20.dp))
-		if (booksData != null) {
-			BookListArea(listOfBooks = booksData, navController = navController)
-		}
+		if (booksData.loading == true) {
+			CircularProgressIndicator()
+			booksData.loading = false
+		} else
+			booksData.data?.let { data ->
+				Log.d(TAG, "HomeContent: $data")
+				ReadingRightNowArea(
+					books = data, navController = navController
+				)
+				TitleSection(
+					label = "Reading List",
+					modifier = Modifier
+						.padding(top = 20.dp)
+						.align(Alignment.Start)
+				)
+				BookListArea(listOfBooks = data, navController = navController)
+			}
 	}
 }
 
